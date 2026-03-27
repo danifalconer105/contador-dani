@@ -122,12 +122,12 @@ async function iniciarApp() {
     document.getElementById("btnSumar").style.display = "none";
   }
 
-  setTimeout(obtenerValor, 500);
+  setInterval(obtenerValor, 2000);
 }
 
 // OBTENER CONTADOR
 async function obtenerValor() {
-  let { data } = await supabase
+  let { data } = await supabaseClient
     .from('contador')
     .select('valor')
     .eq('id', 1)
@@ -147,7 +147,7 @@ async function sumar() {
     return;
   }
 
-  setTimeout(obtenerValor, 500);
+  setInterval(obtenerValor, 2000);
 }
 
 // RESTAR
@@ -161,7 +161,7 @@ async function restar() {
     return;
   }
 
-  setTimeout(obtenerValor, 500);
+  setInterval(obtenerValor, 2000);
 }
 
 // AUTO LOGIN SI YA HAY SESIÓN
@@ -180,17 +180,6 @@ supabaseClient.auth.getSession().then(({ data }) => {
   )
   .subscribe();
 </script>
-  supabaseClient
-  .channel('contador')
-  .on(
-    'postgres_changes',
-    { event: 'UPDATE', schema: 'public', table: 'contador' },
-    (payload) => {
-      console.log("Cambio detectado:", payload);
-      document.getElementById("contador").innerText = payload.new.valor;
-    }
-  )
-  .subscribe();
 
 </body>
 </html>
