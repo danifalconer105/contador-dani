@@ -130,19 +130,17 @@ async function obtenerValor() {
   const { data, error } = await supabaseClient
     .from('contador')
     .select('valor')
-    .eq('id', 1)
-    .single();
+    .eq('id', 1);
 
-  console.log("DATA:", data);
-  console.log("ERROR:", error);
+  console.log(data, error);
 
   if (error) {
-    alert("Error al obtener valor: " + error.message);
+    alert(error.message);
     return;
   }
 
-  if (data) {
-    document.getElementById("contador").innerText = data.valor;
+  if (data && data.length > 0) {
+    document.getElementById("contador").innerText = data[0].valor;
   }
 }
 
