@@ -127,13 +127,23 @@ async function iniciarApp() {
 
 // OBTENER CONTADOR
 async function obtenerValor() {
-  let { data } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from('contador')
     .select('valor')
     .eq('id', 1)
     .single();
 
-  document.getElementById("contador").innerText = data.valor;
+  console.log("DATA:", data);
+  console.log("ERROR:", error);
+
+  if (error) {
+    alert("Error al obtener valor: " + error.message);
+    return;
+  }
+
+  if (data) {
+    document.getElementById("contador").innerText = data.valor;
+  }
 }
 
 // SUMAR
