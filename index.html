@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Contador Dani</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 body {
@@ -78,7 +78,7 @@ button {
 </div>
 
 <script>
-const supabase = supabase.createClient(
+const supabaseClient = supabase.createClient(
   "https://xhqepaqdbigveezeidma.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhocWVwYXFkYmlndmVlemVpZG1hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1ODYzMzYsImV4cCI6MjA5MDE2MjMzNn0.Iw2j8Lp5tZ9eBVIpPvNxU27I4gdRh_2LTkQ5FrBUVAM"
 );
@@ -88,7 +88,7 @@ async function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { error } = await supabaseClient.auth.signInWithPassword({
     email,
     password
   });
@@ -102,7 +102,7 @@ async function login() {
 
 // LOGOUT
 async function logout() {
-  await supabase.auth.signOut();
+  await supabaseClient.auth.signOut();
   location.reload();
 }
 
@@ -111,7 +111,7 @@ async function iniciarApp() {
   document.getElementById("login").style.display = "none";
   document.getElementById("app").style.display = "block";
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await supabaseClient.auth.getUser();
 
   // CONTROL DE ROLES
   if (user.email === "majitofuentesperez@gmail.com") {
@@ -138,18 +138,18 @@ async function obtenerValor() {
 
 // SUMAR
 async function sumar() {
-  await supabase.rpc('sumar', { valor_sumar: 1 });
+  await supabaseClient.rpc('sumar', { valor_sumar: 1 });
   obtenerValor();
 }
 
 // RESTAR
 async function restar() {
-  await supabase.rpc('restar', { valor_restar: 1 });
+  await supabaseClient.rpc('restar', { valor_restar: 1 });
   obtenerValor();
 }
 
 // AUTO LOGIN SI YA HAY SESIÓN
-supabase.auth.getSession().then(({ data }) => {
+supabaseClient.auth.getSession().then(({ data }) => {
   if (data.session) {
     iniciarApp();
   }
