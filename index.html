@@ -138,14 +138,30 @@ async function obtenerValor() {
 
 // SUMAR
 async function sumar() {
-  await supabaseClient.rpc('sumar', { valor_sumar: 1 });
-  obtenerValor();
+  const { data, error } = await supabaseClient.rpc('sumar', { valor_sumar: 1 });
+
+  console.log("SUMAR:", data, error);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  setTimeout(obtenerValor, 500);
 }
 
 // RESTAR
 async function restar() {
-  await supabaseClient.rpc('restar', { valor_restar: 1 });
-  obtenerValor();
+  const { data, error } = await supabaseClient.rpc('restar', { valor_restar: 1 });
+
+  console.log("RESTAR:", data, error);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  setTimeout(obtenerValor, 500);
 }
 
 // AUTO LOGIN SI YA HAY SESIÓN
@@ -154,6 +170,15 @@ supabaseClient.auth.getSession().then(({ data }) => {
     iniciarApp();
   }
 });
+  supabaseClient
+  .channel('contador')
+  .on('postgres_changes', 
+    { event: 'UPDATE', schema: 'public', table: 'contador' },
+    payload => {
+      document.getElementById("contador").innerText = payload.new.valor;
+    }
+  )
+  .subscribe();
 </script>
 
 </body>
