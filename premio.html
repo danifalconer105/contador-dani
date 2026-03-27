@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Contador Dani</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<style>
+body {
+  font-family: Arial;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #0f172a;
+  color: white;
+}
+
+.container {
+  text-align: center;
+  background: #1e293b;
+  padding: 30px;
+  border-radius: 15px;
+  width: 300px;
+}
+
+input {
+  width: 90%;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 8px;
+  border: none;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 10px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.plus { background: #22c55e; }
+.minus { background: #ef4444; }
+
+#contador {
+  font-size: 50px;
+  margin: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- LOGIN -->
+  <div id="login">
+    <h2>Login</h2>
+    <input type="email" id="email" placeholder="Correo"><br>
+    <input type="password" id="password" placeholder="Contraseña"><br>
+    <button onclick="login()">Entrar</button>
+  </div>
+
+  <!-- APP -->
+  <div id="app" style="display:none;">
+    <h2>Contador</h2>
+    <div id="contador">0</div>
+
+    <button id="btnSumar" class="plus" onclick="sumar()">+1</button>
+    <button id="btnRestar" class="minus" onclick="restar()">-1</button>
+
+    <br>
+    <button onclick="logout()">Cerrar sesión</button>
+  </div>
+
+</div>
+
+<script>
+const supabase = supabase.createClient(
+  "https://xhqepaqdbigveezeidma.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhocWVwYXFkYmlndmVlemVpZG1hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1ODYzMzYsImV4cCI6MjA5MDE2MjMzNn0.Iw2j8Lp5tZ9eBVIpPvNxU27I4gdRh_2LTkQ5FrBUVAM"
+);
+
+// LOGIN
+async function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    alert("Error: " + error.message);
+  } else {
+    iniciarApp();
+  }
+}
+
+// LOGOUT
+async function logout() {
+  await supabase.auth.signOut();
+  location.reload();
+}
+
+// INICIAR APP
+async function iniciarApp() {
+  document.getElementById("login").style.display = "none";
+  document.getElementById("app").style.display = "block";
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // CONTROL DE ROLES
+  if (user.email === "majitofuentesperez@gmail.com") {
+    document.getElementById("btnRestar").style.display = "none";
+  }
+
+  if (user.email === "danifalconer105@gmail.com") {
+    document.getElementById("btnSumar").style.display = "none";
+  }
+
+  obtenerValor();
+}
+
+// OBTENER CONTADOR
+async function obtenerValor() {
+  let { data } = await supabase
+    .from('contador')
+    .select('valor')
+    .eq('id', 1)
+    .single();
+
+  document.getElementById("contador").innerText = data.valor;
+}
+
+// SUMAR
+async function sumar() {
+  await supabase.rpc('sumar', { valor_sumar: 1 });
+  obtenerValor();
+}
+
+// RESTAR
+async function restar() {
+  await supabase.rpc('restar', { valor_restar: 1 });
+  obtenerValor();
+}
+
+// AUTO LOGIN SI YA HAY SESIÓN
+supabase.auth.getSession().then(({ data }) => {
+  if (data.session) {
+    iniciarApp();
+  }
+});
+</script>
+
+</body>
+</html>
