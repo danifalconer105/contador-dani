@@ -113,7 +113,13 @@ async function iniciarApp() {
 
   const { data: { user } } = await supabaseClient.auth.getUser();
 
-  // CONTROL DE ROLES
+  if (!user) {
+    alert("No hay sesión");
+    return;
+  }
+
+  console.log("Usuario:", user.email);
+
   if (user.email === "majitofuentesperez@gmail.com") {
     document.getElementById("btnRestar").style.display = "none";
   }
@@ -122,25 +128,27 @@ async function iniciarApp() {
     document.getElementById("btnSumar").style.display = "none";
   }
 
-  setInterval(obtenerValor, 2000);
+  await obtenerValor(); // 👈 IMPORTANTE
 }
 
 // OBTENER CONTADOR
 async function obtenerValor() {
-  const { data, error } = await supabaseClient
-    .from('contador')
-    .select('valor')
-    .eq('id', 1);
+  try {
+    const { data, error } = await supabaseClient
+      .from('contador')
+      .select('valor')
+      .eq('id', 1);
 
-  console.log(data, error);
+    console.log("RESPUESTA:", data, error);
 
-  if (error) {
-    alert(error.message);
-    return;
-  }
+    if (error) throw error;
 
-  if (data && data.length > 0) {
-    document.getElementById("contador").innerText = data[0].valor;
+    if (data && data.length > 0) {
+      document.getElementById("contador").innerText = data[0].valor;
+    }
+
+  } catch (err) {
+    console.error("FETCH ERROR:", err);
   }
 }
 
